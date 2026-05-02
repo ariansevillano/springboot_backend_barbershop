@@ -10,10 +10,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
 @EnableScheduling
-public class SpringSecurityJwtApplication {
+public class BarbershopApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringSecurityJwtApplication.class, args);
+        SpringApplication.run(BarbershopApplication.class, args);
     }
 
     @Configuration
