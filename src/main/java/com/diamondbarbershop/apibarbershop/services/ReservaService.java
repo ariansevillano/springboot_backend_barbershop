@@ -9,8 +9,6 @@ import com.diamondbarbershop.apibarbershop.exceptions.BarberoNoEncontradoExcepti
 import com.diamondbarbershop.apibarbershop.exceptions.ServicioNoEncontradoException;
 import com.diamondbarbershop.apibarbershop.exceptions.TipoHorarioNoEncotradoException;
 import com.diamondbarbershop.apibarbershop.exceptions.UsuarioExistenteException;
-import cl.javadevs.springsecurityjwt.models.*;
-import cl.javadevs.springsecurityjwt.repositories.*;
 import com.diamondbarbershop.apibarbershop.models.*;
 import com.diamondbarbershop.apibarbershop.repositories.*;
 import com.diamondbarbershop.apibarbershop.util.EstadoReserva;

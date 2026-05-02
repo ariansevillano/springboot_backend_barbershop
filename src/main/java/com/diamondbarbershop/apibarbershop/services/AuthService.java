@@ -5,7 +5,6 @@ import com.diamondbarbershop.apibarbershop.dtos.auth.request.DtoRefreshToken;
 import com.diamondbarbershop.apibarbershop.dtos.auth.request.DtoRegistro;
 import com.diamondbarbershop.apibarbershop.dtos.auth.response.DtoLoginResponse;
 import com.diamondbarbershop.apibarbershop.dtos.auth.request.DtoResetPassword;
-import cl.javadevs.springsecurityjwt.exceptions.*;
 import com.diamondbarbershop.apibarbershop.exceptions.CredencialesInvalidasException;
 import com.diamondbarbershop.apibarbershop.exceptions.RolNoEncontradoException;
 import com.diamondbarbershop.apibarbershop.exceptions.TokenInvalidoOExpiradoException;
