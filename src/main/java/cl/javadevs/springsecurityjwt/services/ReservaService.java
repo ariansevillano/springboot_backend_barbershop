@@ -162,7 +162,7 @@ public class ReservaService {
                 reservas = reservaRepository.findAll();
             }
         }
-        Integer montoTotal = calcularGanancia(reservas);
+        Long montoTotal = calcularGanancia(reservas);
         return reservas.stream().map(reserva -> {
             DtoReservaResponse dto = new DtoReservaResponse();
             dto.setReservaId(reserva.getReserva_id());
@@ -184,14 +184,11 @@ public class ReservaService {
         }).toList();
     }
 
-    public Integer calcularGanancia(List<Reserva> reservas){
-        int montoTotal = 0;
-        reservas.stream().filter(e -> e.getEstado() == EstadoReserva.REALIZADA)
-                .collect(Collectors.toList());
-        for (Reserva r : reservas) {
-            montoTotal += r.getPrecioServicio();
-        }
-        return montoTotal;
+    public Long calcularGanancia(List<Reserva> reservas) {
+        return reservas.stream()
+                .filter(e -> e.getEstado() == EstadoReserva.REALIZADA)
+                .mapToLong(Reserva::getPrecioServicio)
+                .sum();
     }
 
     public void cambiarEstado(Long reservaId, EstadoReserva estado, String motivoDescripcion) {
@@ -266,7 +263,7 @@ public class ReservaService {
 
     public DtoReporteResponse obtenerReportes(LocalDate fechaInicio, LocalDate fechaFin, String servicio) {
         List<Reserva> reservas = reservaRepository.findByFechaReservaBetweenAndEstado(fechaInicio,fechaFin,EstadoReserva.REALIZADA);
-        Integer montoTotal = 0;
+        Long montoTotal = 0L;
         Integer cantidadReservas = 0;
         if (servicio != null) {
             reservas.stream()
