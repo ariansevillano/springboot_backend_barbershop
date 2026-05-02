@@ -86,31 +86,31 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TokenInvalidoOExpiradoException.class)
     public ResponseEntity<ApiResponse<Object>> handleTokenInvalidoOExpiradoException(TokenInvalidoOExpiradoException ex){
         ApiResponse<Object> response = new ApiResponse<>(
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.UNAUTHORIZED.value(),
                 ex.getMessage(),
                 null
         );
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(BarberoNoEncontradoException.class)
     public ResponseEntity<ApiResponse<Object>> handleBarberoNoEncontradoException(BarberoNoEncontradoException ex){
         ApiResponse<Object> response = new ApiResponse<>(
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
                 null
         );
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(TipoHorarioNoEncotradoException.class)
     public ResponseEntity<ApiResponse<Object>> handleTipoHorarioNoEncotradoException(TipoHorarioNoEncotradoException ex){
         ApiResponse<Object> response = new ApiResponse<>(
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
                 null
         );
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ImagenNoSubidaException.class)
