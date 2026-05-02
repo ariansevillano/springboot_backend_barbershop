@@ -1,0 +1,11 @@
+spring:
+  profiles:
+    active: ${SPRING_PROFILE:local}
+
+mail:
+  urlFront: ${MAIL_URL_FRONT:http://localhost:4200/reset-password}
+
+cloudinary:
+  cloud_name: ${CLOUDINARY_CLOUD_NAME}
+  api_key: ${CLOUDINARY_API_KEY}
+  api_secret: ${CLOUDINARY_API_SECRET}
