@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class BarberoService {
     private final HorarioBarberoBaseService horarioBarberoBaseService;
     private final CloudinaryService cloudinaryService;
 
+    @Transactional
     public void crear(DtoBarbero dtoBarbero, MultipartFile imagen) {
         String urlImagen = null;
 
