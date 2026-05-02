@@ -17,6 +17,7 @@ import cl.javadevs.springsecurityjwt.util.MensajeError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.DayOfWeek;
@@ -252,6 +253,7 @@ public class ReservaService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void crearReservaRecompensa(DtoReserva dto, Authentication authentication) {
         List<Reserva> reservas = filtradoReservasRecompensa(authentication);
         for (Reserva reserva : reservas ) {
