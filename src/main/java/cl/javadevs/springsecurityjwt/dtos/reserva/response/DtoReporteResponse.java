@@ -6,6 +6,6 @@ import lombok.Data;
 public class DtoReporteResponse {
 
     private String servicioNombre;
-    private Integer montoTotal;
+    private Long montoTotal;
     private Integer cantidadReservas;
 }

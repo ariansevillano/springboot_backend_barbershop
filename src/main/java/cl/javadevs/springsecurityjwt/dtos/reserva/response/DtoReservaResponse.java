@@ -22,5 +22,5 @@ public class DtoReservaResponse {
     private Long precioServicio;
     private Integer estRecompensa;
     private String urlPago;
-    private Integer montoTotal;
+    private Long montoTotal;
 }
