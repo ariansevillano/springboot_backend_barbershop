@@ -61,7 +61,10 @@ public class SecurityConfig {
                 .and()
                 .authorizeHttpRequests() //Toda petición http debe ser autorizada
                 .requestMatchers("/api/auth/**",
-                                "emailPassword/**")
+                                "emailPassword/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**")
                         .permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/servicio/crear").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.GET,"/api/servicio/listar").hasAnyAuthority("ADMIN" , "USER")

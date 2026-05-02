@@ -5,7 +5,6 @@ import com.diamondbarbershop.apibarbershop.dtos.usuario.request.DtoUsuario;
 import com.diamondbarbershop.apibarbershop.dtos.usuario.response.DtoUsuarioResponse;
 import com.diamondbarbershop.apibarbershop.exceptions.UsuarioExistenteException;
 import com.diamondbarbershop.apibarbershop.mappers.UsuarioMapper;
-import cl.javadevs.springsecurityjwt.models.*;
 import com.diamondbarbershop.apibarbershop.models.Usuario;
 import com.diamondbarbershop.apibarbershop.repositories.IUsuariosRepository;
 import com.diamondbarbershop.apibarbershop.util.MensajeError;
