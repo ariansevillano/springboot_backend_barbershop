@@ -35,5 +35,5 @@ build/
 
 /%LOCALAPPDATA%/
 src/main/resources/application.yaml
-
+/docs
 .env
