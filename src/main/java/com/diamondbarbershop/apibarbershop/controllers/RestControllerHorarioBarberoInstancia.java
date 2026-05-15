@@ -22,12 +22,7 @@ public class RestControllerHorarioBarberoInstancia {
     private final HorarioBarberoInstanciaService horarioBarberoInstanciaService;
 
     @GetMapping("/actual")
-    public ResponseEntity<ApiResponse<Map<String, List<DtoHorarioBarberoInstanciaResponse>>>> obtenerSemanaAgrupada(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
+    public ResponseEntity<ApiResponse<Map<String, List<DtoHorarioBarberoInstanciaResponse>>>> obtenerSemanaAgrupada() {
         return ResponseEntity.ok(ApiResponse.succes("Horario Actual:", horarioBarberoInstanciaService.obtenerInstanciasAgrupadasPorDiaSemanaActual()));
     }
 }
