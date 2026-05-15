@@ -101,8 +101,8 @@ public class ReservaJpaAdapter implements ReservaRepository {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado")));
         jpa.setHorarioRango(horarioRangoRepository.findById(reserva.getHorarioRangoId())
                 .orElseThrow(() -> new RuntimeException("HorarioRango no encontrado")));
-        jpa.setServicio(servicioRepository.findById(reserva.getServicioId())
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado")));
+        jpa.setServicioEntity(servicioRepository.findById(reserva.getServicioId())
+                .orElseThrow(() -> new RuntimeException("ServicioEntity no encontrado")));
 
         jpa.setEstado(reserva.getEstado());
         jpa.setPrecioServicio(reserva.getPrecio().getMonto());
@@ -126,7 +126,7 @@ public class ReservaJpaAdapter implements ReservaRepository {
                 jpa.getReserva_id(),
                 jpa.getBarbero().getBarbero_id(),
                 jpa.getUsuario().getUsuario_id(),
-                jpa.getServicio().getServicio_id(),
+                jpa.getServicioEntity().getServicio_id(),
                 jpa.getHorarioRango().getHorarioRango_id(),
                 jpa.getEstado(),
                 new Precio(jpa.getPrecioServicio()),

@@ -37,7 +37,7 @@ public class ReservaEntity {
     private EstadoReserva estado;
     @ManyToOne
     @JoinColumn(name = "servicio_id", nullable = false)
-    private Servicio servicio;
+    private ServicioEntity servicioEntity;
     @Column(nullable = false)
     private Long precioServicio;
     private String motivoDescripcion;

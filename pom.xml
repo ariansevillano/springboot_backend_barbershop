@@ -8,11 +8,11 @@
         <version>3.3.13</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>cl.javadevs</groupId>
-    <artifactId>Spring-Security-JWT</artifactId>
+    <groupId>com.diamondbarbershop</groupId>
+    <artifactId>Api-Barbershop</artifactId>
     <version>1.0.0-RELEASE</version>
-    <name>Spring-Security-JWT</name>
-    <description>Spring-Security-JWT</description>
+    <name>Api-Barbershop</name>
+    <description>API del Sistema de reservas para barbería - BarberHub</description>
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -109,10 +109,41 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.6.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.5.Final</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <!-- Lombok PRIMERO: genera getters/setters que MapStruct necesita leer -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <!-- Binding: le dice a MapStruct que espere a que Lombok termine -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                        <!-- MapStruct DESPUÉS: ya puede ver los getters/setters generados -->
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>1.5.5.Final</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

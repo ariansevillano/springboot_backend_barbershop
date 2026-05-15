@@ -9,6 +9,7 @@ import com.diamondbarbershop.apibarbershop.exceptions.BarberoNoEncontradoExcepti
 import com.diamondbarbershop.apibarbershop.exceptions.ServicioNoEncontradoException;
 import com.diamondbarbershop.apibarbershop.exceptions.TipoHorarioNoEncotradoException;
 import com.diamondbarbershop.apibarbershop.exceptions.UsuarioExistenteException;
+import com.diamondbarbershop.apibarbershop.mappers.ReservaEntityMapper;
 import com.diamondbarbershop.apibarbershop.models.*;
 import com.diamondbarbershop.apibarbershop.repositories.*;
 import com.diamondbarbershop.apibarbershop.util.EstadoReserva;
@@ -35,6 +36,7 @@ public class ReservaService {
     private final IBarberoRepository barberoRepository;
     private final CloudinaryService cloudinaryService;
     private final IServicioRepository servicioRepository;
+    private final ReservaEntityMapper reservaEntityMapper;
 
     public List<DtoBarberoDisponible> listarBarberosDisponibles(LocalDate fecha, Long tipoHorarioId, Long horarioRangoId) {
         // 1. Barberos que trabajan ese día y tipoHorario
@@ -71,8 +73,8 @@ public class ReservaService {
                 .orElseThrow(() -> new RuntimeException("Barbero no encontrado"));
         HorarioRango horarioRango = horarioRangoRepository.findById(dto.getHorarioRangoId())
                 .orElseThrow(() -> new RuntimeException("HorarioRango no encontrado"));
-        Servicio servicio = servicioRepository.findById(dto.getServicioId())
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+        ServicioEntity servicioEntity = servicioRepository.findById(dto.getServicioId())
+                .orElseThrow(() -> new RuntimeException("ServicioEntity no encontrado"));
 
         // Verificar si ya existe reserva para ese barbero, fecha y rango
         boolean existe = reservaRepository.existsByBarberoAndFechaReservaAndHorarioRango(
@@ -90,7 +92,7 @@ public class ReservaService {
                 .orElseThrow(() -> new BarberoNoEncontradoException(MensajeError.BARBERO_NO_ENCONTRADO));
         HorarioRango horarioRango = horarioRangoRepository.findById(dto.getHorarioRangoId())
                 .orElseThrow(() -> new TipoHorarioNoEncotradoException(MensajeError.TIPO_HORARIO_NO_ENCOTRADO));
-        Servicio servicio = servicioRepository.findById(dto.getServicioId())
+        ServicioEntity servicioEntity = servicioRepository.findById(dto.getServicioId())
                 .orElseThrow(() -> new ServicioNoEncontradoException(MensajeError.SERVICIO_NO_ENCONTRADO));
 
         // Verificar si ya existe reservaEntity para ese barbero, fecha y rango
@@ -102,8 +104,8 @@ public class ReservaService {
         reservaEntity.setBarbero(barbero);
         reservaEntity.setUsuario(usuario);
         reservaEntity.setHorarioRango(horarioRango);
-        reservaEntity.setServicio(servicio);
-        reservaEntity.setPrecioServicio(servicio.getPrecio()); // Guardar precio histórico
+        reservaEntity.setServicioEntity(servicioEntity);
+        reservaEntity.setPrecioServicio(servicioEntity.getPrecio()); // Guardar precio histórico
         reservaEntity.setEstado(EstadoReserva.CREADA);
         reservaEntity.setAdicionales(dto.getAdicionales());
         reservaEntity.setFechaCreacion(LocalDateTime.now());
@@ -161,25 +163,9 @@ public class ReservaService {
             }
         }
         Long montoTotal = calcularGanancia(reservaEntities);
-        return reservaEntities.stream().map(reservaEntity -> {
-            DtoReservaResponse dto = new DtoReservaResponse();
-            dto.setReservaId(reservaEntity.getReserva_id());
-            dto.setBarberoNombre(reservaEntity.getBarbero().getNombre());
-            dto.setUsuarioId(reservaEntity.getUsuario().getUsuario_id());
-            dto.setUsuarioNombre(reservaEntity.getUsuario().getNombre());
-            dto.setHorarioRango(reservaEntity.getHorarioRango().getRango());
-            dto.setEstado(reservaEntity.getEstado().name());
-            dto.setMotivoDescripcion(reservaEntity.getMotivoDescripcion());
-            dto.setAdicionales(reservaEntity.getAdicionales());
-            dto.setFechaCreacion(reservaEntity.getFechaCreacion());
-            dto.setFechaReserva(reservaEntity.getFechaReserva());
-            dto.setUrlPago(reservaEntity.getUrlPago());
-            dto.setServicioNombre(reservaEntity.getServicio().getNombre());
-            dto.setPrecioServicio(reservaEntity.getPrecioServicio());
-            dto.setEstRecompensa(reservaEntity.getEstRecompensa());
-            dto.setMontoTotal(montoTotal);
-            return dto;
-        }).toList();
+        List<DtoReservaResponse> dtoReservas = reservaEntityMapper.toDtoList(reservaEntities);
+        dtoReservas.forEach(dtoReserva -> dtoReserva.setMontoTotal(montoTotal));
+        return dtoReservas;
     }
 
     public Long calcularGanancia(List<ReservaEntity> reservaEntities) {
@@ -210,23 +196,7 @@ public class ReservaService {
         Usuario usuario = usuariosRepository.findByUsername(username)
                 .orElseThrow(() -> new UsuarioExistenteException(MensajeError.USUARIO_NO_EXISTENTE));
         List<ReservaEntity> reservaEntities = reservaRepository.findByUsuario(usuario);
-        return reservaEntities.stream().map(reservaEntity -> {
-            DtoReservaResponse dto = new DtoReservaResponse();
-            dto.setReservaId(reservaEntity.getReserva_id());
-            dto.setBarberoNombre(reservaEntity.getBarbero().getNombre());
-            dto.setUsuarioNombre(reservaEntity.getUsuario().getNombre());
-            dto.setHorarioRango(reservaEntity.getHorarioRango().getRango());
-            dto.setEstado(reservaEntity.getEstado().name());
-            dto.setMotivoDescripcion(reservaEntity.getMotivoDescripcion());
-            dto.setAdicionales(reservaEntity.getAdicionales());
-            dto.setFechaCreacion(reservaEntity.getFechaCreacion());
-            dto.setFechaReserva(reservaEntity.getFechaReserva());
-            dto.setUrlPago(reservaEntity.getUrlPago());
-            dto.setServicioNombre(reservaEntity.getServicio().getNombre());
-            dto.setEstRecompensa(reservaEntity.getEstRecompensa());
-            dto.setPrecioServicio(reservaEntity.getPrecioServicio());
-            return dto;
-        }).toList();
+        return reservaEntityMapper.toDtoList(reservaEntities);
     }
 
     public Boolean buscarReservasRecompensa(Authentication authentication) {
@@ -266,7 +236,7 @@ public class ReservaService {
         Integer cantidadReservas = 0;
         if (servicio != null) {
             reservaEntities.stream()
-                    .filter(e -> e.getServicio().getNombre() == servicio)
+                    .filter(e -> e.getServicioEntity().getNombre() == servicio)
                     .collect(Collectors.toList());
            montoTotal = calcularGanancia(reservaEntities);
            cantidadReservas = reservaEntities.size();

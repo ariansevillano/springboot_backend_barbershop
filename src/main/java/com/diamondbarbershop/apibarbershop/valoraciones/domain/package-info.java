@@ -8,7 +8,7 @@
  *     Referencias externas: clienteId (de Identidad)
  *
  * Migración prevista: Sprint 2
- *   Mover desde: com.diamondbarbershop.apibarbershop.models.Valoracion
+ *   Mover desde: com.diamondbarbershop.apibarbershop.models.ValoracionEntity
  *   Mover desde: com.diamondbarbershop.apibarbershop.services.ValoracionService
  */
 package com.diamondbarbershop.apibarbershop.valoraciones.domain;

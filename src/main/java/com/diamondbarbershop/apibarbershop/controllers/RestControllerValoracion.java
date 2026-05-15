@@ -30,7 +30,7 @@ public class RestControllerValoracion {
 
         valoracionService.crear(dtoValoracion,authentication);
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.succes("Servicio creado correctamente", null)
+                ApiResponse.succes("ServicioEntity creado correctamente", null)
         );
     }
 

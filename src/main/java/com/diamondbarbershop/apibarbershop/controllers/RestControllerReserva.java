@@ -5,7 +5,7 @@ import com.diamondbarbershop.apibarbershop.dtos.common.ApiResponse;
 import com.diamondbarbershop.apibarbershop.dtos.reserva.request.DtoReserva;
 import com.diamondbarbershop.apibarbershop.dtos.reserva.response.DtoReporteResponse;
 import com.diamondbarbershop.apibarbershop.dtos.reserva.response.DtoReservaResponse;
-import com.diamondbarbershop.apibarbershop.models.Servicio;
+import com.diamondbarbershop.apibarbershop.models.ServicioEntity;
 import com.diamondbarbershop.apibarbershop.models.Usuario;
 import com.diamondbarbershop.apibarbershop.repositories.IServicioRepository;
 import com.diamondbarbershop.apibarbershop.repositories.IUsuariosRepository;
@@ -66,15 +66,15 @@ public class RestControllerReserva {
 
         Usuario usuario = usuariosRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        Servicio servicio = servicioRepository.findById(dto.getServicioId())
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+        ServicioEntity servicioEntity = servicioRepository.findById(dto.getServicioId())
+                .orElseThrow(() -> new RuntimeException("ServicioEntity no encontrado"));
 
         crearReservaUseCase.crear(new CrearReservaUseCase.CrearReservaCommand(
                 dto.getBarberoId(),
                 usuario.getUsuario_id(),
                 dto.getServicioId(),
                 dto.getHorarioRangoId(),
-                servicio.getPrecio(),
+                servicioEntity.getPrecio(),
                 dto.getFechaReserva(),
                 dto.getAdicionales()
         ));

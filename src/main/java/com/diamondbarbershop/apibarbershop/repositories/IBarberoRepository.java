@@ -14,6 +14,4 @@ public interface IBarberoRepository extends JpaRepository<Barbero, Long> {
     Optional<Barbero> findByEstado(Integer estado);
 
     Optional<Barbero> findByNombre(String nombre);
-
-    List<Reserva> findByBarberoAndFechaReserva(Barbero barbero, LocalDate fechaReserva);
 }
