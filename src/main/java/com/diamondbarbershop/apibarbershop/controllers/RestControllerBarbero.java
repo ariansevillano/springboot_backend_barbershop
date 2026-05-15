@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,17 +25,11 @@ public class RestControllerBarbero {
 
     @PostMapping(value = "crear", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<Object>> crearBarbero(@RequestPart("dtoBarbero") @Valid DtoBarbero dtoBarbero,
-                                                            @RequestPart(value="imagen",required = false) MultipartFile imagen,
-                                                            Authentication authentication) {
+                                                            @RequestPart(value="imagen",required = false) MultipartFile imagen) {
         if (imagen != null &&
                 (imagen.getContentType() == null
                         || !imagen.getContentType().startsWith("image/"))) {
             throw new ImagenNoSubidaException(MensajeError.TIPO_ARCHIVO_NO_PERMITIDO);
-        }
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
         }
         barberoService.crear(dtoBarbero,imagen);
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -45,40 +38,24 @@ public class RestControllerBarbero {
     }
 
     @GetMapping(value = "listar", headers = "Accept=application/json")
-    public ResponseEntity<ApiResponse<List<DtoBarberoResponse>>> listarBarbero(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
-        List<DtoBarberoResponse> barberos = barberoService.readAll();
+    public ResponseEntity<ApiResponse<List<DtoBarberoResponse>>> listarBarbero() {
+                List<DtoBarberoResponse> barberos = barberoService.readAll();
         return ResponseEntity.ok(ApiResponse.succes("Lista de barberos obtenida correctamente",barberos));
     }
 
     @GetMapping(value = "listarId/{id}", headers = "Accept=application/json")
-    public ResponseEntity<ApiResponse<DtoBarberoResponse>> obtenerBarberoPorId(@PathVariable Long id,Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
+    public ResponseEntity<ApiResponse<DtoBarberoResponse>> obtenerBarberoPorId(@PathVariable Long id) {
         DtoBarberoResponse dtoBarberoResponse = barberoService.readOne(id);
         return ResponseEntity.ok(ApiResponse.succes("Barbero encontrado",dtoBarberoResponse));
     }
 
     @PutMapping(value = "actualizar/{id}", headers = "Accept=application/json")
     public ResponseEntity<ApiResponse<Object>> actualizarBarbero(@PathVariable Long id,@RequestPart @Valid DtoBarbero dtoBarbero,
-                                                                 @RequestPart (value = "imagen", required = false) MultipartFile imagen,
-                                                                 Authentication authentication) {
+                                                                 @RequestPart (value = "imagen", required = false) MultipartFile imagen) {
         if (imagen != null &&
                 (imagen.getContentType() == null
                         || !imagen.getContentType().startsWith("image/"))) {
             throw new ImagenNoSubidaException(MensajeError.TIPO_ARCHIVO_NO_PERMITIDO);
-        }
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
         }
         barberoService.update(id,dtoBarbero,imagen);
         DtoBarberoResponse dtoResponse = barberoService.readOne(id);
@@ -86,12 +63,7 @@ public class RestControllerBarbero {
     }
 
     @DeleteMapping(value = "eliminar/{id}", headers = "Accept=application/json")
-    public ResponseEntity<ApiResponse<Object>> eliminarBarbero(@PathVariable Long id,Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
+    public ResponseEntity<ApiResponse<Object>> eliminarBarbero(@PathVariable Long id) {
         barberoService.deshabilitar(id);
         return ResponseEntity.ok(ApiResponse.succes("Barbero Deshabilitado exitosamente",null));
     }

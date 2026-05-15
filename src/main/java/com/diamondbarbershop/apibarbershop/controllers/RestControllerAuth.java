@@ -122,12 +122,6 @@ public class RestControllerAuth {
 
     @PostMapping("logout")
     public ResponseEntity<ApiResponse<Object>> logout(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("No estás autenticado.", null)
-            );
-        }
-
         String username = authentication.getName();
         authService.logout(username);
 

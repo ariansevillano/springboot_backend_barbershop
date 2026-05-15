@@ -39,15 +39,9 @@ public class RestControllerReserva {
 
     @GetMapping("barberos-disponibles")
     public ResponseEntity<ApiResponse<List<DtoBarberoDisponible>>> listarBarberosDisponibles(
-            Authentication authentication,
             @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
             @RequestParam("tipoHorarioId") Long tipoHorarioId,
             @RequestParam("horarioRangoId") Long horarioRangoId) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
         List<DtoBarberoDisponible> barberos = reservaService.listarBarberosDisponibles(fecha, tipoHorarioId, horarioRangoId);
         return ResponseEntity.ok(ApiResponse.succes("Lista de barberos disponibles",barberos));
     }
@@ -56,12 +50,6 @@ public class RestControllerReserva {
     public ResponseEntity<ApiResponse<Object>> crearReserva(
             @RequestBody DtoReserva dto,
             Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
-
         // El controller resuelve clienteId y precio antes de construir el comando
 
         Usuario usuario = usuariosRepository.findByUsername(authentication.getName())
@@ -88,42 +76,25 @@ public class RestControllerReserva {
             @PathVariable Long reservaId,
             @RequestPart("imagen") MultipartFile imagen,
             Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
         reservaService.subirComprobante(reservaId, imagen, authentication);
         return ResponseEntity.ok(ApiResponse.succes("Comprobante subido", null));
     }
 
     @GetMapping("admin/listar")
     public ResponseEntity<ApiResponse<List<DtoReservaResponse>>> listarReservas(
-            Authentication authentication,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
             @RequestParam(required = false) EstadoReserva estado,
             @RequestParam(required = false) Long usuarioId ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
-        List<DtoReservaResponse> reservas = reservaService.listarReservas(fecha, estado,usuarioId);
+                List<DtoReservaResponse> reservas = reservaService.listarReservas(fecha, estado,usuarioId);
         return ResponseEntity.ok(ApiResponse.succes("Lista de reservas",reservas));
     }
 
 
     @PutMapping("admin/cambiar-estado/{reservaId}")
     public ResponseEntity<ApiResponse<Object>> cambiarEstado(
-            Authentication authentication,
             @PathVariable Long reservaId,
             @RequestParam("estado") EstadoReserva estado,
             @RequestParam(value = "motivoDescripcion", required = false) String motivoDescripcion) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado.", null));
-        }
-
         // El use case encapsula la transición — el dominio valida que sea un estado válido
         switch (estado) {
             case CONFIRMADA -> gestionarReservaUseCase.confirmar(reservaId);
@@ -138,22 +109,12 @@ public class RestControllerReserva {
 
     @GetMapping("mis-reservas")
     public ResponseEntity<ApiResponse<List<DtoReservaResponse>>> listarMisReservas(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
         List<DtoReservaResponse> reservas = reservaService.listarReservasPorUsuario(authentication);
         return ResponseEntity.ok(ApiResponse.succes("Lista de mis reservas",reservas));
     }
 
     @GetMapping("consultarRecompensa")
     public ResponseEntity<ApiResponse<Boolean>> consultarRecompensa(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
         Boolean estado = reservaService.buscarReservasRecompensa(authentication);
         return ResponseEntity.ok(ApiResponse.succes("Estado enviado",estado));
     }
@@ -162,11 +123,6 @@ public class RestControllerReserva {
     public ResponseEntity<ApiResponse<Object>> crearReservaRecompensa(
             @RequestBody DtoReserva dto,
             Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
         reservaService.crearReservaRecompensa(dto,authentication);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.succes("Reserva creada correctamente", null));
     }
@@ -175,13 +131,7 @@ public class RestControllerReserva {
     public ResponseEntity<ApiResponse<DtoReporteResponse>> obtenerReportes(
             @RequestParam LocalDate fechaInicio,
             @RequestParam LocalDate fechaFin,
-            @RequestParam (required = false) String servicio,
-            Authentication authentication){
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
-        }
+            @RequestParam (required = false) String servicio){
         DtoReporteResponse reporte = reservaService.obtenerReportes(fechaInicio,fechaFin,servicio);
         return ResponseEntity.ok(ApiResponse.succes("Reportes obtenidos", reporte));
     }
