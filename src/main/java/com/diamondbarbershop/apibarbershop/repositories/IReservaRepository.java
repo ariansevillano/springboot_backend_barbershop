@@ -24,5 +24,4 @@ public interface IReservaRepository extends JpaRepository<ReservaEntity,Long> {
     List<ReservaEntity> findByEstadoAndUsuario(EstadoReserva estado, Usuario usuario);
     List<ReservaEntity> findByFechaReservaBetweenAndEstado(LocalDate fechaInicio, LocalDate fechaFin, EstadoReserva estado);
     List<ReservaEntity> findByBarberoAndFechaReserva(Barbero barbero, LocalDate fechaReserva);
-
 }

@@ -9,7 +9,7 @@ INSERT IGNORE INTO roles (name) VALUES
 INSERT IGNORE INTO tipo_horarios (nombre) VALUES
     ('Mañana'),
     ('Tarde'),
-    ('Noche')
+    ('Noche');
 
 INSERT IGNORE INTO tipo_servicios (nombre) VALUES
     ('Cortes'),
@@ -25,14 +25,14 @@ INSERT IGNORE INTO horario_rangos (rango, tipo_horario_id) VALUES
     ('12:00 - 13:00', 1);
 
 INSERT IGNORE INTO horario_rangos (rango, tipo_horario_id) VALUES
-    ('13:00 - 14:00', 1);
+    ('13:00 - 14:00', 1),
     ('14:00 - 15:00', 2),
     ('15:00 - 16:00', 2),
     ('16:00 - 17:00', 2),
     ('17:00 - 18:00', 2);
 
 INSERT IGNORE INTO horario_rangos (rango, tipo_horario_id) VALUES
-    ('18:00 - 19:00', 3);
+    ('18:00 - 19:00', 3),
     ('19:00 - 20:00', 3),
     ('20:00 - 21:00', 3),
     ('21:00 - 22:00', 3);

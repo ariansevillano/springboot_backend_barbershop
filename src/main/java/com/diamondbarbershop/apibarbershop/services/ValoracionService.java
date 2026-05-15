@@ -3,8 +3,9 @@ package com.diamondbarbershop.apibarbershop.services;
 import com.diamondbarbershop.apibarbershop.dtos.valoracion.request.DtoValoracion;
 import com.diamondbarbershop.apibarbershop.dtos.valoracion.response.DtoValoracionResponse;
 import com.diamondbarbershop.apibarbershop.exceptions.UsuarioExistenteException;
+import com.diamondbarbershop.apibarbershop.mappers.ValoracionEntityMapper;
 import com.diamondbarbershop.apibarbershop.models.Usuario;
-import com.diamondbarbershop.apibarbershop.models.Valoracion;
+import com.diamondbarbershop.apibarbershop.models.ValoracionEntity;
 import com.diamondbarbershop.apibarbershop.repositories.IUsuariosRepository;
 import com.diamondbarbershop.apibarbershop.repositories.IValoracionRepository;
 import com.diamondbarbershop.apibarbershop.util.MensajeError;
@@ -20,41 +21,33 @@ public class ValoracionService {
 
     private final IUsuariosRepository usuariosRepository;
     private final IValoracionRepository valoracionRepository;
+    private final ValoracionEntityMapper valoracionEntityMapper;
+
 
     public void crear(DtoValoracion dtoValoracion, Authentication authentication) {
         String username = authentication.getName();
         Usuario usuario = usuariosRepository.findByUsername(username)
                         .orElseThrow(() -> new UsuarioExistenteException(MensajeError.USUARIO_NO_EXISTENTE));
-        Valoracion valoracion = new Valoracion();
-        valoracion.setValoracion(dtoValoracion.getValoracion());
-        valoracion.setUtil(dtoValoracion.getUtil());
-        valoracion.setMensaje(dtoValoracion.getMensaje());
-        valoracion.setUsuario(usuario);
-        valoracion.setEstado(1);
-        valoracionRepository.save(valoracion);
+        ValoracionEntity valoracionEntity = new ValoracionEntity();
+        valoracionEntity.setValoracion(dtoValoracion.getValoracion());
+        valoracionEntity.setUtil(dtoValoracion.getUtil());
+        valoracionEntity.setMensaje(dtoValoracion.getMensaje());
+        valoracionEntity.setUsuario(usuario);
+        valoracionEntity.setEstado(1);
+        valoracionRepository.save(valoracionEntity);
     }
 
     public List<DtoValoracionResponse> listarValoraciones() {
-        List<Valoracion> valoracions = valoracionRepository.findAll();
-        return valoracions.stream()
-                .filter(e -> e.getEstado() == 1)
-                .map(valoracion -> {
-            DtoValoracionResponse dto = new DtoValoracionResponse();
-            dto.setValoracion_id(valoracion.getValoracion_id());
-            dto.setValoracion(valoracion.getValoracion());
-            dto.setUtil(valoracion.getUtil());
-            dto.setMensaje(valoracion.getMensaje());
-            dto.setUsuario_nombre(valoracion.getUsuario().getNombre());
-            dto.setUsuarioId(valoracion.getUsuario().getUsuario_id());
-            dto.setCelular(valoracion.getUsuario().getCelular());
-            return dto;
-        }).toList();
+        List<ValoracionEntity> valoracionEntities = valoracionRepository.findAll().stream()
+                .filter(valoracionEntity -> valoracionEntity.getEstado() == 1)
+                .toList();
+        return valoracionEntityMapper.toDtoList(valoracionEntities);
     }
 
     public void cambiarEstado(Long valoracionId){
-        Valoracion valoracion = valoracionRepository.findById(valoracionId)
+        ValoracionEntity valoracionEntity = valoracionRepository.findById(valoracionId)
                 .orElseThrow(() -> new RuntimeException("Valoración no encontrada"));
-        valoracion.setEstado(0);
-        valoracionRepository.save(valoracion);
+        valoracionEntity.setEstado(0);
+        valoracionRepository.save(valoracionEntity);
     }
 }

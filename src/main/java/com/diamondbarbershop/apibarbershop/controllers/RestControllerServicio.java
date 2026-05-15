@@ -38,7 +38,7 @@ public class RestControllerServicio {
         }
         servicioService.crear(dtoServicio,imagen);
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.succes("Servicio creado correctamente", null)
+                ApiResponse.succes("ServicioEntity creado correctamente", null)
         );
     }
 
@@ -63,7 +63,7 @@ public class RestControllerServicio {
             );
         }
         DtoServicioResponse dtoServicio = servicioService.readOne(id);
-        return ResponseEntity.ok(ApiResponse.succes("Servicio encontrado",dtoServicio));
+        return ResponseEntity.ok(ApiResponse.succes("ServicioEntity encontrado",dtoServicio));
     }
 
     //Petición para actualizar un servicio
@@ -84,7 +84,7 @@ public class RestControllerServicio {
         }
         servicioService.update(id,dtoServicio,imagen);
         DtoServicioResponse dtoServicioResponse = servicioService.readOne(id);
-        return ResponseEntity.ok(ApiResponse.succes("Servicio Actualizado exitosamente",dtoServicioResponse));
+        return ResponseEntity.ok(ApiResponse.succes("ServicioEntity Actualizado exitosamente",dtoServicioResponse));
     }
 
     //Petición para eliminar un servicio por "Id"
@@ -96,6 +96,6 @@ public class RestControllerServicio {
             );
         }
         servicioService.deshabilitar(id);
-        return ResponseEntity.ok(ApiResponse.succes("Servicio Eliminado exitosamente",null));
+        return ResponseEntity.ok(ApiResponse.succes("ServicioEntity Eliminado exitosamente",null));
     }
 }
