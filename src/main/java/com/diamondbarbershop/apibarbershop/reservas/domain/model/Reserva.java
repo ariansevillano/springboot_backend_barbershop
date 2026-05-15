@@ -244,4 +244,37 @@ public class Reserva {
      * No es un setter de negocio — es infraestructura.
      */
     public void asignarId(Long id) { this.id = id; }
+
+    public static Reserva reconstitute(
+            Long id,
+            Long barberoId,
+            Long clienteId,
+            Long servicioId,
+            Long horarioRangoId,
+            EstadoReserva estado,
+            Precio precio,
+            String motivoDescripcion,
+            String adicionales,
+            LocalDateTime fechaCreacion,
+            LocalDate fechaReserva,
+            Integer estRecompensa,
+            String urlPago
+
+    ) {
+        Reserva reserva = new Reserva();
+        reserva.id = id;
+        reserva.barberoId = barberoId;
+        reserva.clienteId = clienteId;
+        reserva.servicioId = servicioId;
+        reserva.horarioRangoId = horarioRangoId;
+        reserva.estado = estado;
+        reserva.precio = precio;
+        reserva.motivoDescripcion = motivoDescripcion;
+        reserva.adicionales = adicionales;
+        reserva.fechaCreacion = fechaCreacion;
+        reserva.fechaReserva = fechaReserva;
+        reserva.estRecompensa = estRecompensa;
+        reserva.urlPago = urlPago;
+        return reserva;
+    }
 }

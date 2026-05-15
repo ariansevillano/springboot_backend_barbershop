@@ -5,6 +5,12 @@ import com.diamondbarbershop.apibarbershop.dtos.common.ApiResponse;
 import com.diamondbarbershop.apibarbershop.dtos.reserva.request.DtoReserva;
 import com.diamondbarbershop.apibarbershop.dtos.reserva.response.DtoReporteResponse;
 import com.diamondbarbershop.apibarbershop.dtos.reserva.response.DtoReservaResponse;
+import com.diamondbarbershop.apibarbershop.models.Servicio;
+import com.diamondbarbershop.apibarbershop.models.Usuario;
+import com.diamondbarbershop.apibarbershop.repositories.IServicioRepository;
+import com.diamondbarbershop.apibarbershop.repositories.IUsuariosRepository;
+import com.diamondbarbershop.apibarbershop.reservas.domain.port.in.CrearReservaUseCase;
+import com.diamondbarbershop.apibarbershop.reservas.domain.port.in.GestionarReservaUseCase;
 import com.diamondbarbershop.apibarbershop.services.ReservaService;
 import com.diamondbarbershop.apibarbershop.util.EstadoReserva;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +29,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RestControllerReserva {
 
+    private final CrearReservaUseCase crearReservaUseCase;
+    private final GestionarReservaUseCase gestionarReservaUseCase;
+
+    private final IUsuariosRepository usuariosRepository;
+    private final IServicioRepository servicioRepository;
+
     private final ReservaService reservaService;
+
     @GetMapping("barberos-disponibles")
     public ResponseEntity<ApiResponse<List<DtoBarberoDisponible>>> listarBarberosDisponibles(
             Authentication authentication,
@@ -48,8 +61,26 @@ public class RestControllerReserva {
                     ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
             );
         }
-        reservaService.crearReserva(dto, authentication, true);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.succes("Reserva creada correctamente", null));
+
+        // El controller resuelve clienteId y precio antes de construir el comando
+
+        Usuario usuario = usuariosRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Servicio servicio = servicioRepository.findById(dto.getServicioId())
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+
+        crearReservaUseCase.crear(new CrearReservaUseCase.CrearReservaCommand(
+                dto.getBarberoId(),
+                usuario.getUsuario_id(),
+                dto.getServicioId(),
+                dto.getHorarioRangoId(),
+                servicio.getPrecio(),
+                dto.getFechaReserva(),
+                dto.getAdicionales()
+        ));
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.succes("Reserva creada correctamente", null));
     }
 
     @PostMapping("subir-comprobante/{reservaId}")
@@ -90,10 +121,17 @@ public class RestControllerReserva {
             @RequestParam(value = "motivoDescripcion", required = false) String motivoDescripcion) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    ApiResponse.error("El token es inválido o ha expirado. Por favor, inicia sesión nuevamente.", null)
-            );
+                    ApiResponse.error("El token es inválido o ha expirado.", null));
         }
-        reservaService.cambiarEstado(reservaId, estado, motivoDescripcion);
+
+        // El use case encapsula la transición — el dominio valida que sea un estado válido
+        switch (estado) {
+            case CONFIRMADA -> gestionarReservaUseCase.confirmar(reservaId);
+            case REALIZADA  -> gestionarReservaUseCase.marcarComoRealizada(reservaId);
+            case CANCELADA  -> gestionarReservaUseCase.cancelar(reservaId, motivoDescripcion);
+            default -> reservaService.cambiarEstado(reservaId, estado, motivoDescripcion);
+        }
+
         return ResponseEntity.ok(ApiResponse.succes("Estado actualizado", null));
     }
 

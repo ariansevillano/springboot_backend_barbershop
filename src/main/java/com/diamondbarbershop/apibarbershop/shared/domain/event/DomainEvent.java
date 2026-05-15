@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  *   Reserva.confirmar()
  *     → estado = CONFIRMADA
  *     → emite ReservaConfirmada (queda en lista interna)
- *   ReservaService.confirmar()
+ *   GestionarReservaApplicationService.confirmar()
  *     → llama reservaRepository.save(reserva)
  *     → extrae reserva.pullEvents()
  *     → publica cada evento en el EventBus
