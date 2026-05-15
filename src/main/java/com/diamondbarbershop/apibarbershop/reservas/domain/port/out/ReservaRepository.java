@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Puerto de SALIDA (Outbound Port) — contrato de persistencia del aggregate Reserva.
+ * Puerto de SALIDA (Outbound Port) — contrato de persistencia del aggregate ReservaEntity.
  *
  * ¿Por qué es una interfaz en el dominio y no una clase de Spring Data?
  *

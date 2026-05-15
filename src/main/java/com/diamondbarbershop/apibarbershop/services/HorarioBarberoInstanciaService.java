@@ -5,7 +5,7 @@ import com.diamondbarbershop.apibarbershop.dtos.horarioInstancia.response.DtoHor
 import com.diamondbarbershop.apibarbershop.models.Barbero;
 import com.diamondbarbershop.apibarbershop.models.HorarioBarberoInstancia;
 import com.diamondbarbershop.apibarbershop.models.HorarioRango;
-import com.diamondbarbershop.apibarbershop.models.Reserva;
+import com.diamondbarbershop.apibarbershop.models.ReservaEntity;
 import com.diamondbarbershop.apibarbershop.repositories.IHorarioBarberoInstanciaRepository;
 import com.diamondbarbershop.apibarbershop.repositories.IHorarioRangoRepository;
 import com.diamondbarbershop.apibarbershop.repositories.IReservaRepository;
@@ -51,9 +51,9 @@ public class HorarioBarberoInstanciaService {
         // 2. Reservas existentes para ese día y rango
         HorarioRango horarioRango = horarioRangoRepository.findById(horarioRangoId)
                 .orElseThrow(() -> new RuntimeException("HorarioRango no encontrado"));
-        List<Reserva> reservas = reservaRepository.findByFechaReservaAndHorarioRango(fecha, horarioRango);
+        List<ReservaEntity> reservaEntities = reservaRepository.findByFechaReservaAndHorarioRango(fecha, horarioRango);
 
-        Set<Long> barberosReservados = reservas.stream()
+        Set<Long> barberosReservados = reservaEntities.stream()
                 .map(r -> r.getBarbero().getBarbero_id())
                 .collect(Collectors.toSet());
 

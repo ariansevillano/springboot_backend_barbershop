@@ -44,9 +44,9 @@ public class ReservaService {
         // 2. Reservas existentes para ese día y rango
         HorarioRango horarioRango = horarioRangoRepository.findById(horarioRangoId)
                 .orElseThrow(() -> new RuntimeException("HorarioRango no encontrado"));
-        List<Reserva> reservas = reservaRepository.findByFechaReservaAndHorarioRango(fecha, horarioRango);
+        List<ReservaEntity> reservaEntities = reservaRepository.findByFechaReservaAndHorarioRango(fecha, horarioRango);
 
-        Set<Long> barberosReservados = reservas.stream()
+        Set<Long> barberosReservados = reservaEntities.stream()
                 .map(r -> r.getBarbero().getBarbero_id())
                 .collect(Collectors.toSet());
 
@@ -93,146 +93,146 @@ public class ReservaService {
         Servicio servicio = servicioRepository.findById(dto.getServicioId())
                 .orElseThrow(() -> new ServicioNoEncontradoException(MensajeError.SERVICIO_NO_ENCONTRADO));
 
-        // Verificar si ya existe reserva para ese barbero, fecha y rango
+        // Verificar si ya existe reservaEntity para ese barbero, fecha y rango
         boolean existe = reservaRepository.existsByBarberoAndFechaReservaAndHorarioRango(
                 barbero, dto.getFechaReserva(), horarioRango);
-        if (existe) throw new RuntimeException("El barbero ya tiene una reserva en ese horario");
+        if (existe) throw new RuntimeException("El barbero ya tiene una reservaEntity en ese horario");
 
-        Reserva reserva = new Reserva();
-        reserva.setBarbero(barbero);
-        reserva.setUsuario(usuario);
-        reserva.setHorarioRango(horarioRango);
-        reserva.setServicio(servicio);
-        reserva.setPrecioServicio(servicio.getPrecio()); // Guardar precio histórico
-        reserva.setEstado(EstadoReserva.CREADA);
-        reserva.setAdicionales(dto.getAdicionales());
-        reserva.setFechaCreacion(LocalDateTime.now());
-        reserva.setFechaReserva(dto.getFechaReserva());
-        reserva.setUrlPago(null);
+        ReservaEntity reservaEntity = new ReservaEntity();
+        reservaEntity.setBarbero(barbero);
+        reservaEntity.setUsuario(usuario);
+        reservaEntity.setHorarioRango(horarioRango);
+        reservaEntity.setServicio(servicio);
+        reservaEntity.setPrecioServicio(servicio.getPrecio()); // Guardar precio histórico
+        reservaEntity.setEstado(EstadoReserva.CREADA);
+        reservaEntity.setAdicionales(dto.getAdicionales());
+        reservaEntity.setFechaCreacion(LocalDateTime.now());
+        reservaEntity.setFechaReserva(dto.getFechaReserva());
+        reservaEntity.setUrlPago(null);
         if (flag){
-        reserva.setEstRecompensa(1);
-            reserva.setEstado(EstadoReserva.CREADA);
+        reservaEntity.setEstRecompensa(1);
+            reservaEntity.setEstado(EstadoReserva.CREADA);
         } else {
-            reserva.setEstRecompensa(1);
-            reserva.setEstado(EstadoReserva.CONFIRMADA);
+            reservaEntity.setEstRecompensa(1);
+            reservaEntity.setEstado(EstadoReserva.CONFIRMADA);
         }
-        reservaRepository.save(reserva);
+        reservaRepository.save(reservaEntity);
     }
 
 
     public void subirComprobante(Long reservaId, MultipartFile imagen, Authentication authentication) {
-        Reserva reserva = reservaRepository.findById(reservaId)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+        ReservaEntity reservaEntity = reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new RuntimeException("ReservaEntity no encontrada"));
         String username = authentication.getName();
-        if (!reserva.getUsuario().getUsername().equals(username)) {
+        if (!reservaEntity.getUsuario().getUsername().equals(username)) {
             throw new RuntimeException("No autorizado");
         }
         String url = cloudinaryService.subirImagen(imagen, "pagos");
-        reserva.setUrlPago(url);
-        reservaRepository.save(reserva);
+        reservaEntity.setUrlPago(url);
+        reservaRepository.save(reservaEntity);
     }
 
 
     public List<DtoReservaResponse> listarReservas(LocalDate fecha, EstadoReserva estado, Long usuarioId) {
 
-        List<Reserva> reservas;
+        List<ReservaEntity> reservaEntities;
         if (usuarioId != null){
             Usuario usuario = usuariosRepository.findById(usuarioId)
                     .orElseThrow(() -> new UsuarioExistenteException(MensajeError.USUARIO_NO_EXISTENTE));
             if (fecha != null && estado != null) {
-                reservas = reservaRepository.findByFechaReservaAndEstadoAndUsuario(fecha,estado,usuario);
+                reservaEntities = reservaRepository.findByFechaReservaAndEstadoAndUsuario(fecha,estado,usuario);
             } else if (estado != null) {
-                reservas = reservaRepository.findByEstadoAndUsuario(estado,usuario);
+                reservaEntities = reservaRepository.findByEstadoAndUsuario(estado,usuario);
             } else if (fecha != null){
-                reservas = reservaRepository.findByFechaReservaAndUsuario(fecha,usuario);
+                reservaEntities = reservaRepository.findByFechaReservaAndUsuario(fecha,usuario);
             } else {
-                reservas = reservaRepository.findByUsuario(usuario);
+                reservaEntities = reservaRepository.findByUsuario(usuario);
             }
         } else {
 
             if (fecha != null && estado != null) {
-                reservas = reservaRepository.findByFechaReservaAndEstado(fecha,estado);
+                reservaEntities = reservaRepository.findByFechaReservaAndEstado(fecha,estado);
             } else if (fecha != null) {
-                reservas = reservaRepository.findByFechaReserva(fecha);
+                reservaEntities = reservaRepository.findByFechaReserva(fecha);
             } else if (estado != null) {
-                reservas = reservaRepository.findByEstado(estado);
+                reservaEntities = reservaRepository.findByEstado(estado);
             } else {
-                reservas = reservaRepository.findAll();
+                reservaEntities = reservaRepository.findAll();
             }
         }
-        Long montoTotal = calcularGanancia(reservas);
-        return reservas.stream().map(reserva -> {
+        Long montoTotal = calcularGanancia(reservaEntities);
+        return reservaEntities.stream().map(reservaEntity -> {
             DtoReservaResponse dto = new DtoReservaResponse();
-            dto.setReservaId(reserva.getReserva_id());
-            dto.setBarberoNombre(reserva.getBarbero().getNombre());
-            dto.setUsuarioId(reserva.getUsuario().getUsuario_id());
-            dto.setUsuarioNombre(reserva.getUsuario().getNombre());
-            dto.setHorarioRango(reserva.getHorarioRango().getRango());
-            dto.setEstado(reserva.getEstado().name());
-            dto.setMotivoDescripcion(reserva.getMotivoDescripcion());
-            dto.setAdicionales(reserva.getAdicionales());
-            dto.setFechaCreacion(reserva.getFechaCreacion());
-            dto.setFechaReserva(reserva.getFechaReserva());
-            dto.setUrlPago(reserva.getUrlPago());
-            dto.setServicioNombre(reserva.getServicio().getNombre());
-            dto.setPrecioServicio(reserva.getPrecioServicio());
-            dto.setEstRecompensa(reserva.getEstRecompensa());
+            dto.setReservaId(reservaEntity.getReserva_id());
+            dto.setBarberoNombre(reservaEntity.getBarbero().getNombre());
+            dto.setUsuarioId(reservaEntity.getUsuario().getUsuario_id());
+            dto.setUsuarioNombre(reservaEntity.getUsuario().getNombre());
+            dto.setHorarioRango(reservaEntity.getHorarioRango().getRango());
+            dto.setEstado(reservaEntity.getEstado().name());
+            dto.setMotivoDescripcion(reservaEntity.getMotivoDescripcion());
+            dto.setAdicionales(reservaEntity.getAdicionales());
+            dto.setFechaCreacion(reservaEntity.getFechaCreacion());
+            dto.setFechaReserva(reservaEntity.getFechaReserva());
+            dto.setUrlPago(reservaEntity.getUrlPago());
+            dto.setServicioNombre(reservaEntity.getServicio().getNombre());
+            dto.setPrecioServicio(reservaEntity.getPrecioServicio());
+            dto.setEstRecompensa(reservaEntity.getEstRecompensa());
             dto.setMontoTotal(montoTotal);
             return dto;
         }).toList();
     }
 
-    public Long calcularGanancia(List<Reserva> reservas) {
-        return reservas.stream()
+    public Long calcularGanancia(List<ReservaEntity> reservaEntities) {
+        return reservaEntities.stream()
                 .filter(e -> e.getEstado() == EstadoReserva.REALIZADA)
-                .mapToLong(Reserva::getPrecioServicio)
+                .mapToLong(ReservaEntity::getPrecioServicio)
                 .sum();
     }
 
     public void cambiarEstado(Long reservaId, EstadoReserva estado, String motivoDescripcion) {
-        Reserva reserva = reservaRepository.findById(reservaId)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+        ReservaEntity reservaEntity = reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new RuntimeException("ReservaEntity no encontrada"));
         if (estado == EstadoReserva.CONFIRMADA) {
-            reserva.setEstado(estado);
-            reserva.setEstRecompensa(0);
+            reservaEntity.setEstado(estado);
+            reservaEntity.setEstRecompensa(0);
         } else {
-            reserva.setEstado(estado);
+            reservaEntity.setEstado(estado);
         }
         // Solo el admin puede poner motivoDescripcion
         if (motivoDescripcion != null) {
-            reserva.setMotivoDescripcion(motivoDescripcion);
+            reservaEntity.setMotivoDescripcion(motivoDescripcion);
         }
-        reservaRepository.save(reserva);
+        reservaRepository.save(reservaEntity);
     }
 
     public List<DtoReservaResponse> listarReservasPorUsuario(Authentication authentication) {
         String username = authentication.getName();
         Usuario usuario = usuariosRepository.findByUsername(username)
                 .orElseThrow(() -> new UsuarioExistenteException(MensajeError.USUARIO_NO_EXISTENTE));
-        List<Reserva> reservas = reservaRepository.findByUsuario(usuario);
-        return reservas.stream().map(reserva -> {
+        List<ReservaEntity> reservaEntities = reservaRepository.findByUsuario(usuario);
+        return reservaEntities.stream().map(reservaEntity -> {
             DtoReservaResponse dto = new DtoReservaResponse();
-            dto.setReservaId(reserva.getReserva_id());
-            dto.setBarberoNombre(reserva.getBarbero().getNombre());
-            dto.setUsuarioNombre(reserva.getUsuario().getNombre());
-            dto.setHorarioRango(reserva.getHorarioRango().getRango());
-            dto.setEstado(reserva.getEstado().name());
-            dto.setMotivoDescripcion(reserva.getMotivoDescripcion());
-            dto.setAdicionales(reserva.getAdicionales());
-            dto.setFechaCreacion(reserva.getFechaCreacion());
-            dto.setFechaReserva(reserva.getFechaReserva());
-            dto.setUrlPago(reserva.getUrlPago());
-            dto.setServicioNombre(reserva.getServicio().getNombre());
-            dto.setEstRecompensa(reserva.getEstRecompensa());
-            dto.setPrecioServicio(reserva.getPrecioServicio());
+            dto.setReservaId(reservaEntity.getReserva_id());
+            dto.setBarberoNombre(reservaEntity.getBarbero().getNombre());
+            dto.setUsuarioNombre(reservaEntity.getUsuario().getNombre());
+            dto.setHorarioRango(reservaEntity.getHorarioRango().getRango());
+            dto.setEstado(reservaEntity.getEstado().name());
+            dto.setMotivoDescripcion(reservaEntity.getMotivoDescripcion());
+            dto.setAdicionales(reservaEntity.getAdicionales());
+            dto.setFechaCreacion(reservaEntity.getFechaCreacion());
+            dto.setFechaReserva(reservaEntity.getFechaReserva());
+            dto.setUrlPago(reservaEntity.getUrlPago());
+            dto.setServicioNombre(reservaEntity.getServicio().getNombre());
+            dto.setEstRecompensa(reservaEntity.getEstRecompensa());
+            dto.setPrecioServicio(reservaEntity.getPrecioServicio());
             return dto;
         }).toList();
     }
 
     public Boolean buscarReservasRecompensa(Authentication authentication) {
         Boolean estado;
-        List<Reserva> reservas = filtradoReservasRecompensa(authentication);
-        if (reservas.size() >= 7) {
+        List<ReservaEntity> reservaEntities = filtradoReservasRecompensa(authentication);
+        if (reservaEntities.size() >= 7) {
             estado = true;
             return estado;
         } else {
@@ -241,43 +241,43 @@ public class ReservaService {
         }
     }
 
-    public List<Reserva> filtradoReservasRecompensa(Authentication authentication){
+    public List<ReservaEntity> filtradoReservasRecompensa(Authentication authentication){
         Usuario usuario = usuariosRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsuarioExistenteException(MensajeError.USUARIO_NO_EXISTENTE));
-        List<Reserva> reservas = reservaRepository.findByUsuario(usuario);
-        return reservas = reservas.stream()
+        List<ReservaEntity> reservaEntities = reservaRepository.findByUsuario(usuario);
+        return reservaEntities = reservaEntities.stream()
                 .filter(e -> e.getEstRecompensa() == 0)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public void crearReservaRecompensa(DtoReserva dto, Authentication authentication) {
-        List<Reserva> reservas = filtradoReservasRecompensa(authentication);
-        for (Reserva reserva : reservas ) {
-            reserva.setEstRecompensa(1);
-            reservaRepository.save(reserva);
+        List<ReservaEntity> reservaEntities = filtradoReservasRecompensa(authentication);
+        for (ReservaEntity reservaEntity : reservaEntities) {
+            reservaEntity.setEstRecompensa(1);
+            reservaRepository.save(reservaEntity);
         }
         crearReserva(dto, authentication,false);
     }
 
     public DtoReporteResponse obtenerReportes(LocalDate fechaInicio, LocalDate fechaFin, String servicio) {
-        List<Reserva> reservas = reservaRepository.findByFechaReservaBetweenAndEstado(fechaInicio,fechaFin,EstadoReserva.REALIZADA);
+        List<ReservaEntity> reservaEntities = reservaRepository.findByFechaReservaBetweenAndEstado(fechaInicio,fechaFin,EstadoReserva.REALIZADA);
         Long montoTotal = 0L;
         Integer cantidadReservas = 0;
         if (servicio != null) {
-            reservas.stream()
+            reservaEntities.stream()
                     .filter(e -> e.getServicio().getNombre() == servicio)
                     .collect(Collectors.toList());
-           montoTotal = calcularGanancia(reservas);
-           cantidadReservas = reservas.size();
+           montoTotal = calcularGanancia(reservaEntities);
+           cantidadReservas = reservaEntities.size();
            DtoReporteResponse dto = new DtoReporteResponse();
            dto.setServicioNombre(servicio);
            dto.setMontoTotal(montoTotal);
            dto.setCantidadReservas(cantidadReservas);
            return dto;
         } else {
-            montoTotal = calcularGanancia(reservas);
-            cantidadReservas = reservas.size();
+            montoTotal = calcularGanancia(reservaEntities);
+            cantidadReservas = reservaEntities.size();
             DtoReporteResponse dto = new DtoReporteResponse();
             dto.setServicioNombre(servicio);
             dto.setMontoTotal(montoTotal);
